@@ -2,7 +2,6 @@ package backend_test
 
 import (
 	"fmt"
-	"log"
 	"testing"
 
 	"github.com/staticbackendhq/backend-go"
@@ -14,12 +13,13 @@ func init() {
 	backend.PublicKey = "unit-test"
 
 	// this user is created by default in dev mod as an admin
-	t, err := backend.Login("a@b.com", "test123")
+	/*t, err := backend.Login("a@b.com", "test123")
 	if err != nil {
 		log.Fatal("unable to login to the backend: ", err)
 	}
 
 	token = t
+	*/
 }
 
 type Task struct {

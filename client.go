@@ -17,8 +17,23 @@ var (
 	Region    string
 )
 
+const (
+	RegionNorthAmerica1 = "na1"
+	RegionLocalDev      = "dev"
+)
+
+func getHost() (host string) {
+	switch Region {
+	case RegionNorthAmerica1:
+		host = "https://na1.staticbackend.com"
+	case RegionLocalDev, "":
+		host = "localhost:8099"
+	}
+	return
+}
+
 func request(token, method, url, ct string, body io.Reader, v interface{}) error {
-	host := "http://localhost:8099"
+	host := getHost()
 
 	start := time.Now()
 
@@ -31,7 +46,9 @@ func request(token, method, url, ct string, body io.Reader, v interface{}) error
 
 	// We provide authentication
 	req.Header.Set("SB-PUBLIC-KEY", PublicKey)
-	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", token))
+	if len(token) > 0 {
+		req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", token))
+	}
 
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
@@ -40,7 +57,7 @@ func request(token, method, url, ct string, body io.Reader, v interface{}) error
 	defer res.Body.Close()
 
 	if Verbose {
-		fmt.Printf("%d\t%s\t%v\t%s bytes\n", res.StatusCode, url, time.Since(start), res.Header.Get("Content-Length"))
+		fmt.Printf("%s\t%d\t%s\t%v\t%s bytes\n", method, res.StatusCode, url, time.Since(start), res.Header.Get("Content-Length"))
 	}
 
 	// Did we got an error
@@ -53,7 +70,7 @@ func request(token, method, url, ct string, body io.Reader, v interface{}) error
 		return fmt.Errorf("error returned by the backend: %s", string(b))
 	}
 
-	if res.Header.Get("Content-Type") == "application/json" {
+	if res.Header.Get("Content-Type") == "application/json" && v != nil && res.Body != nil {
 		if err := json.NewDecoder(res.Body).Decode(v); err != nil {
 			return fmt.Errorf("unable to decode the response body: %v", err)
 		}
@@ -83,4 +100,14 @@ func Post(token, url string, body interface{}, v interface{}) error {
 
 	buf := bytes.NewReader(b)
 	return request(token, "POST", url, "application/json", buf, v)
+}
+
+func Put(token, url string, body interface{}, v interface{}) error {
+	b, err := json.Marshal(body)
+	if err != nil {
+		return fmt.Errorf("error while encoding the body to JSON: %v", err)
+	}
+
+	buf := bytes.NewReader(b)
+	return request(token, "PUT", url, "application/json", buf, v)
 }

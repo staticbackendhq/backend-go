@@ -15,7 +15,6 @@ func Register(email, password string) (string, error) {
 	if err := Post("", "/register", body, &token); err != nil {
 		return "", err
 	}
-
 	return token, nil
 }
 
@@ -31,4 +30,22 @@ func Login(email, password string) (string, error) {
 	}
 
 	return token, nil
+}
+
+func SetPassword(token, email, oldPassword, newPassword string) error {
+	var body = new(struct {
+		Email       string `json:"email"`
+		OldPassword string `json:"oldPassword"`
+		NewPassword string `json:"newPassword"`
+	})
+
+	body.Email = email
+	body.OldPassword = oldPassword
+	body.NewPassword = newPassword
+
+	var status bool
+	if err := Post(token, "/user/changepw", body, &status); err != nil {
+		return err
+	}
+	return nil
 }
