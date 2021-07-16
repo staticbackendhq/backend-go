@@ -27,7 +27,7 @@ func getHost() (host string) {
 	case RegionNorthAmerica1:
 		host = "https://na1.staticbackend.com"
 	case RegionLocalDev, "":
-		host = "localhost:8099"
+		host = "http://localhost:8099"
 	}
 	return
 }

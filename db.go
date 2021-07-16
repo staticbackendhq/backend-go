@@ -117,9 +117,13 @@ func Find(token, repo string, filters []QueryItem, v interface{}, params *ListPa
 	return
 }
 
-func Update(token, repo, id string, body interface{}) (status bool, err error) {
-	err = Put(token, fmt.Sprintf("/db/%s/%s", repo, id), body, &status)
-	return
+func Update(token, repo, id string, body interface{}, v interface{}) error {
+	return Put(token, fmt.Sprintf("/db/%s/%s", repo, id), body, v)
+}
+
+// SudoCreate adds a new document to a repository and returns the created document.
+func SudoCreate(token, repo string, body interface{}, v interface{}) error {
+	return Post(token, fmt.Sprintf("/sudo/%s", repo), body, v)
 }
 
 // SudoList returns a list of documents in a specific repository if a "root token" is used.
@@ -148,9 +152,8 @@ func SudoGetByID(token, repo, id string, v interface{}) error {
 // This call cannot be done from JavaScript, only from a backend HTTP call.
 //
 // You can obtain this token via the CLI or web interface.
-func SudoUpdate(token, repo, id string, body interface{}) (status bool, err error) {
-	err = Put(token, fmt.Sprintf("/sudo/%s/%s", repo, id), body, &status)
-	return
+func SudoUpdate(token, repo, id string, body interface{}, v interface{}) error {
+	return Put(token, fmt.Sprintf("/sudo/%s/%s", repo, id), body, v)
 }
 
 // SudoFind returns a slice of matching documents if a "root token" is provided.
@@ -182,4 +185,14 @@ func SudoFind(token, repo string, filters []QueryItem, v interface{}, params *Li
 	}
 
 	return
+}
+
+// SudoListRepositories lists all database repositories if a "root token" is provided.
+func SudoListRepositories(token string) ([]string, error) {
+	var names []string
+	if err := Get(token, "/sudolistall", &names); err != nil {
+		return nil, fmt.Errorf("error getting repositories list: %v", err)
+	}
+
+	return names, nil
 }
