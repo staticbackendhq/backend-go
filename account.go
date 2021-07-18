@@ -49,3 +49,15 @@ func SetPassword(token, email, oldPassword, newPassword string) error {
 	}
 	return nil
 }
+
+// SudoGetToken returns a token from an AccountID
+// This is useful when performing creation that documents needs
+// to be attached to a specific account id and therefor the SudoCreate
+// would not work on those cases
+func SudoGetToken(token, accountID string) (string, error) {
+	var tok string
+	if err := Get(token, "/sudogettoken/"+accountID, &tok); err != nil {
+		return "", err
+	}
+	return tok, nil
+}
