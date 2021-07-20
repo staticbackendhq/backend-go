@@ -44,3 +44,8 @@ func DownloadFile(token, fileURL string) ([]byte, error) {
 	err = Get(token, u.Path, &buf)
 	return buf, err
 }
+
+func DeleteFile(token, id string) (ok bool, err error) {
+	err = Get(token, fmt.Sprintf("/sudostorage/delete?id=%s", id), &ok)
+	return
+}
