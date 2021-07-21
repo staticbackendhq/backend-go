@@ -53,6 +53,8 @@ func DownloadFile(token, fileURL string) ([]byte, error) {
 	return buf, err
 }
 
+// DeleteFile deletes the file from storage and remove from space used for
+// this account
 func DeleteFile(token, id string) (ok bool, err error) {
 	err = Get(token, fmt.Sprintf("/sudostorage/delete?id=%s", id), &ok)
 	return
