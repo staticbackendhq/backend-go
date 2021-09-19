@@ -1,5 +1,11 @@
 package backend
 
+import (
+	"fmt"
+	"net/url"
+	"strings"
+)
+
 type AccountParams struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
@@ -46,6 +52,37 @@ func SetPassword(token, email, oldPassword, newPassword string) error {
 	var status bool
 	if err := Post(token, "/user/changepw", body, &status); err != nil {
 		return err
+	}
+	return nil
+}
+
+func GetPasswordResetCode(token, email string) (string, error) {
+	qs := url.Values{}
+	qs.Add("e", email)
+
+	var code string
+	path := fmt.Sprintf("/password/resetcode?%s", qs.Encode())
+	if err := Get(token, path, &code); err != nil {
+		return "", err
+	}
+	return code, nil
+}
+
+func ResetPassword(email, code, password string) error {
+	var body = new(struct {
+		Email    string `json:"email"`
+		Code     string `json:"code"`
+		Password string `json:"password"`
+	})
+	body.Email = strings.ToLower(email)
+	body.Code = code
+	body.Password = password
+
+	var status bool
+	if err := Post("", "/password/reset", body, &status); err != nil {
+		return err
+	} else if !status {
+		return fmt.Errorf("unable to reset password")
 	}
 	return nil
 }
