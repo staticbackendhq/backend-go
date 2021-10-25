@@ -12,6 +12,14 @@ func Create(token, repo string, body interface{}, v interface{}) error {
 	return Post(token, fmt.Sprintf("/db/%s", repo), body, v)
 }
 
+func CreateBulk(token, repo string, body interface{}) (bool, error) {
+	var status bool
+	if err := Post(token, fmt.Sprintf("/db/%s?bulk=1", repo), body, &status); err != nil {
+		return false, err
+	}
+	return status, nil
+}
+
 // ListParams are used to page results and sort.
 type ListParams struct {
 	Page       int
@@ -195,4 +203,17 @@ func SudoListRepositories(token string) ([]string, error) {
 	}
 
 	return names, nil
+}
+
+// Increase increases or decreases a field in a document based on n signed
+func Increase(token, repo, id, field string, n int) error {
+	var body = new(struct {
+		Field string `json:"field"`
+		Range int    `json:"range"`
+	})
+	body.Field = field
+	body.Range = n
+
+	var status bool
+	return Put(token, fmt.Sprintf("/inc/%s/%s", repo, id), body, &status)
 }
