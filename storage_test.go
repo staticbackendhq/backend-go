@@ -15,11 +15,11 @@ func TestUploadFile(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	u, err := backend.StoreFile(token, "unittest.go", f)
+	res, err := backend.StoreFile(token, "unittest.go", f)
 	if err != nil {
 		t.Error(err)
-	} else if strings.HasPrefix(u, "/_servefile_/") == false {
-		t.Errorf("expected URL to have http as prefix got %s", u)
+	} else if strings.HasPrefix(res.URL, "/_servefile_/") == false {
+		t.Errorf("expected URL to have http as prefix got %s", res.URL)
 	}
 
 	orig, err := ioutil.ReadAll(f)
@@ -27,7 +27,7 @@ func TestUploadFile(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	buf, err := backend.DownloadFile(token, "http://localhost:8099"+u)
+	buf, err := backend.DownloadFile(token, "http://localhost:8099"+res.URL)
 	if err != nil {
 		t.Error(err)
 	} else if len(orig) != len(buf) {

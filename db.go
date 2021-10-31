@@ -129,6 +129,11 @@ func Update(token, repo, id string, body interface{}, v interface{}) error {
 	return Put(token, fmt.Sprintf("/db/%s/%s", repo, id), body, v)
 }
 
+// Delete permanently delets a document
+func Delete(token, repo, id string) error {
+	return del(token, fmt.Sprintf("/db/%s/%s", repo, id))
+}
+
 // SudoCreate adds a new document to a repository and returns the created document.
 func SudoCreate(token, repo string, body interface{}, v interface{}) error {
 	return Post(token, fmt.Sprintf("/sudo/%s", repo), body, v)

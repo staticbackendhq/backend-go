@@ -28,6 +28,9 @@ func getHost() (host string) {
 		host = "https://na1.staticbackend.com"
 	case RegionLocalDev, "":
 		host = "http://localhost:8099"
+	default:
+		// for self-hosted instance
+		host = Region
 	}
 	return
 }
@@ -110,4 +113,9 @@ func Put(token, url string, body interface{}, v interface{}) error {
 
 	buf := bytes.NewReader(b)
 	return request(token, "PUT", url, "application/json", buf, v)
+}
+
+func del(token, url string) error {
+	var v interface{}
+	return request(token, http.MethodDelete, url, "application/json", nil, v)
 }

@@ -100,17 +100,3 @@ type Voter struct {
 	ProductID string `json:"productId"`
 	UserID    string `json:"userId"`
 }
-
-func TestWTH(t *testing.T) {
-	backend.PublicKey = "5fc640ff4eea8b872b907f8d"
-
-	products := make([]Product, 0)
-	meta, err := backend.List("", "pub_posts_744_", &products, nil)
-	if err != nil {
-		t.Fatal(err)
-	} else if meta.Total == 0 {
-		t.Errorf("total is %d expected > 0", meta.Total)
-	} else if meta.Results == nil {
-		t.Error("Results is nil")
-	}
-}
