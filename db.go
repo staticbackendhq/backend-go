@@ -222,3 +222,11 @@ func Increase(token, repo, id, field string, n int) error {
 	var status bool
 	return Put(token, fmt.Sprintf("/inc/%s/%s", repo, id), body, &status)
 }
+
+// SudoAddIndex creates a new database index on a specific field
+func SudoAddIndex(token, repo, field string) error {
+	var status bool
+
+	url := fmt.Sprintf("/db/index?col=%s&field=%s", repo, field)
+	return Post(token, url, nil, &status)
+}

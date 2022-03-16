@@ -42,3 +42,38 @@ func ResizeImage(token, filename string, file io.ReadSeeker, maxWidth float64) (
 
 	return res, nil
 }
+
+type SMSData struct {
+	AccountSID string `json:"accountSID"`
+	AuthToken  string `json:"authToken"`
+	ToNumber   string `json:"toNumber"`
+	FromNumber string `json:"fromNumber"`
+	Body       string `json:"body"`
+}
+
+// SudoSendSMS sends a text message via the Twilio API. You need a valid Twilio
+// AccountSID, AuthToken and phone number.
+func SudoSendSMS(token string, data SMSData) error {
+	var status bool
+	if err := Post(token, "/extra/sms", data, &status); err != nil {
+		return err
+	}
+	return nil
+}
+
+// ConvertParam used for the ConvertURLToX request.
+type ConvertParam struct {
+	// ToPDF indicates if the output is a PDF, otherwise a PNG
+	ToPDF bool `json:"toPDF"`
+	// URL a publicly available URL
+	URL string `json:"url"`
+	// FullPage indicates to PNG to screenshot the entire page (still not working)
+	FullPage bool `json:"fullpage"`
+}
+
+// ConvertURLToX converts a URL (web page) to either a PDF or a PNG. The ID and
+// URL of the PDF or PNG is returned.
+func ConvertURLToX(token string, data ConvertParam) (res StoreFileResult, err error) {
+	err = Post(token, "/extra/htmltox", data, &res)
+	return
+}
