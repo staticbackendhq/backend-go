@@ -12,6 +12,7 @@ func Create(token, repo string, body interface{}, v interface{}) error {
 	return Post(token, fmt.Sprintf("/db/%s", repo), body, v)
 }
 
+// CreateBulk creates multiple documents, useful when importing data.
 func CreateBulk(token, repo string, body interface{}) (bool, error) {
 	var status bool
 	if err := Post(token, fmt.Sprintf("/db/%s?bulk=1", repo), body, &status); err != nil {
@@ -57,6 +58,7 @@ func GetByID(token, repo, id string, v interface{}) error {
 	return Get(token, fmt.Sprintf("/db/%s/%s", repo, id), v)
 }
 
+// QueryItem used to perform query
 type QueryItem struct {
 	Field string
 	Op    QueryOperator
@@ -81,6 +83,7 @@ var (
 	ErrMultipleDocument = errors.New("multiple documents found")
 )
 
+// FindOne returns one document if it's found
 func FindOne(token, repo string, filters []QueryItem, v interface{}) error {
 	meta, err := Find(token, repo, filters, v, nil)
 	if err != nil {
@@ -125,13 +128,14 @@ func Find(token, repo string, filters []QueryItem, v interface{}, params *ListPa
 	return
 }
 
+// Update updates a document. Can be just a subset of the fields.
 func Update(token, repo, id string, body interface{}, v interface{}) error {
 	return Put(token, fmt.Sprintf("/db/%s/%s", repo, id), body, v)
 }
 
 // Delete permanently delets a document
 func Delete(token, repo, id string) error {
-	return del(token, fmt.Sprintf("/db/%s/%s", repo, id))
+	return Del(token, fmt.Sprintf("/db/%s/%s", repo, id))
 }
 
 // SudoCreate adds a new document to a repository and returns the created document.

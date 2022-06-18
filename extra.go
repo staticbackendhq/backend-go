@@ -44,11 +44,11 @@ func ResizeImage(token, filename string, file io.ReadSeeker, maxWidth float64) (
 }
 
 type SMSData struct {
-	AccountSID string `json:"accountSID"`
-	AuthToken  string `json:"authToken"`
-	ToNumber   string `json:"toNumber"`
-	FromNumber string `json:"fromNumber"`
-	Body       string `json:"body"`
+	AccountSID string `json:"accountSID"` // Twilio account SID
+	AuthToken  string `json:"authToken"`  // Twilio authentication token
+	ToNumber   string `json:"toNumber"`   // Destination number
+	FromNumber string `json:"fromNumber"` // Twilio phone number
+	Body       string `json:"body"`       // text-message body
 }
 
 // SudoSendSMS sends a text message via the Twilio API. You need a valid Twilio

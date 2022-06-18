@@ -6,6 +6,7 @@ import (
 	"strings"
 )
 
+// AccountParams represents a new StaticBackend account
 type AccountParams struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
@@ -38,6 +39,7 @@ func Login(email, password string) (string, error) {
 	return token, nil
 }
 
+// SetPassword changes the password of a user
 func SetPassword(token, email, oldPassword, newPassword string) error {
 	var body = new(struct {
 		Email       string `json:"email"`
@@ -56,6 +58,7 @@ func SetPassword(token, email, oldPassword, newPassword string) error {
 	return nil
 }
 
+// GetPasswordResetCode returns a unique code for a user to change their password
 func GetPasswordResetCode(token, email string) (string, error) {
 	qs := url.Values{}
 	qs.Add("e", email)
@@ -68,6 +71,7 @@ func GetPasswordResetCode(token, email string) (string, error) {
 	return code, nil
 }
 
+// ResetPassword changes user password using a unique code
 func ResetPassword(email, code, password string) error {
 	var body = new(struct {
 		Email    string `json:"email"`

@@ -11,10 +11,10 @@ import (
 var token string
 
 func init() {
-	backend.PublicKey = "unit-test"
+	backend.PublicKey = "dev-memory-pk"
 
 	// this user is created by default in dev mod as an admin
-	t, err := backend.Login("a@b.com", "test123")
+	t, err := backend.Login("admin@dev.com", "devpw1234")
 	if err != nil {
 		log.Fatal("unable to login to the backend: ", err)
 	}

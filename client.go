@@ -1,3 +1,8 @@
+// Package backend is a client wrapper for [StaticBackend] API.
+//
+// Before using its functions you need to supply a Region and PublicKey.
+//
+// [StaticBackend]: https://staticbackend.com
 package backend
 
 import (
@@ -18,8 +23,8 @@ var (
 )
 
 const (
-	RegionNorthAmerica1 = "na1"
-	RegionLocalDev      = "dev"
+	RegionNorthAmerica1 = "na1" // managed hosting region of North-America
+	RegionLocalDev      = "dev" // local dev region default to http://localhost:8099
 )
 
 func getHost() (host string) {
@@ -90,11 +95,12 @@ func request(token, method, url, ct string, body io.Reader, v interface{}) error
 	return nil
 }
 
-// Get sends an HTTP GET request to the backend
+// Get sends an HTTP GET request to the backend API
 func Get(token, url string, v interface{}) error {
 	return request(token, http.MethodGet, url, "application/json", nil, v)
 }
 
+// Post sends an HTTP POST request to the backend API
 func Post(token, url string, body interface{}, v interface{}) error {
 	b, err := json.Marshal(body)
 	if err != nil {
@@ -105,6 +111,7 @@ func Post(token, url string, body interface{}, v interface{}) error {
 	return request(token, "POST", url, "application/json", buf, v)
 }
 
+// Put sends an HTTP POST request to the backend API
 func Put(token, url string, body interface{}, v interface{}) error {
 	b, err := json.Marshal(body)
 	if err != nil {
@@ -115,7 +122,8 @@ func Put(token, url string, body interface{}, v interface{}) error {
 	return request(token, "PUT", url, "application/json", buf, v)
 }
 
-func del(token, url string) error {
+// Delete sends an HTTP DELETE request to the backend API
+func Del(token, url string) error {
 	var v interface{}
 	return request(token, http.MethodDelete, url, "application/json", nil, v)
 }

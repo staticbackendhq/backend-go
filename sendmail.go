@@ -10,6 +10,7 @@ type EmailData struct {
 	ReplyTo  string `json:"replyTo"`
 }
 
+// SendMail sends an email
 func SendMail(token, from, fromName, to, subject, body, replyTo string) (ok bool, err error) {
 	data := EmailData{
 		FromName: fromName,

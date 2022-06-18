@@ -5,6 +5,7 @@ import (
 	"net/url"
 )
 
+// ListForm returns submissions for all or a specific form.
 func ListForm(token, name string) (data []map[string]interface{}, err error) {
 	qs := url.Values{}
 	if len(name) > 0 {

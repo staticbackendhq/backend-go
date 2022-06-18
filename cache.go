@@ -6,6 +6,7 @@ import (
 	"time"
 )
 
+// CacheGet retrieves a cache value
 func CacheGet(token, key string, v interface{}) error {
 	var s string
 	if err := Get(token, "/sudo/cache?key="+key, &s); err != nil {
@@ -14,6 +15,7 @@ func CacheGet(token, key string, v interface{}) error {
 	return json.Unmarshal([]byte(s), v)
 }
 
+// CacheSet sets a cache value
 func CacheSet(token, key string, v interface{}) error {
 	b, err := json.Marshal(v)
 	if err != nil {
@@ -29,6 +31,7 @@ func CacheSet(token, key string, v interface{}) error {
 	return Post(token, "/sudo/cache", data, &ok)
 }
 
+// WorkerTask is the function type needed for work queue action
 type WorkerTask func(val string)
 
 // WorkerQueue monitors a work queue each 5 seconds.
@@ -55,6 +58,7 @@ func checkQueue(token, key string, worker WorkerTask) {
 	}
 }
 
+// QueueWork adds a work queue value that will be dequeue via WorkerQueue
 func QueueWork(token, key, value string) error {
 	data := new(struct {
 		Key   string `json:"key"`

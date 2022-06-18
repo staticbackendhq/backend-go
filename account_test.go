@@ -1,23 +1,21 @@
 package backend_test
 
 import (
+	"fmt"
 	"testing"
+	"time"
 
 	"github.com/staticbackendhq/backend-go"
 )
 
 func TestRegisterAndLogin(t *testing.T) {
-	email, pass := "unit", "unit"
+	email, pass := fmt.Sprintf("unit_%d@test.com", time.Now().UnixNano()), "unit"
 
-	tok, err := backend.Register(email, pass)
-	if err != nil {
+	if _, err := backend.Register(email, pass); err != nil {
 		t.Error(err)
 	}
 
-	tok2, err := backend.Login(email, pass)
-	if err != nil {
+	if _, err := backend.Login(email, pass); err != nil {
 		t.Error(err)
-	} else if tok != tok2 {
-		t.Errorf("register/login tokens does not match, expected %s got %s", tok, tok2)
 	}
 }
