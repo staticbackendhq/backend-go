@@ -102,3 +102,18 @@ func SudoGetToken(token, accountID string) (string, error) {
 	}
 	return tok, nil
 }
+
+// CurrentUser used to access current user's important information
+type CurrentUser struct {
+	AccountID string `json:"accountId"`
+	UserID    string `json:"userId"`
+	Email     string `json:"email"`
+	Role      int    `json:"role"`
+}
+
+// Me returns the current user matching this session token
+// This is the only way to get the user's role, account/user ids and email.
+func Me(token string) (me CurrentUser, err error) {
+	err = Get(token, "/me", &me)
+	return
+}
