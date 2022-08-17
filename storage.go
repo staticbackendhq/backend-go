@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"io"
 	"mime/multipart"
-	"net/url"
+	"net/http"
 )
 
 // StoreFileResult incluses the file id and url. The ID is required
@@ -42,15 +42,20 @@ func StoreFile(token, filename string, file io.ReadSeeker) (StoreFileResult, err
 }
 
 // DownloadFile retrieves the file content as []byte
-func DownloadFile(token, fileURL string) ([]byte, error) {
-	u, err := url.Parse(fileURL)
+func DownloadFile(token, fileURL string) (buf []byte, err error) {
+	req, err := http.NewRequest("GET", fileURL, nil)
 	if err != nil {
-		return nil, err
+		return
 	}
 
-	var buf []byte
-	err = Get(token, u.Path, &buf)
-	return buf, err
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return
+	}
+	defer resp.Body.Close()
+
+	buf, err = io.ReadAll(resp.Body)
+	return
 }
 
 // DeleteFile deletes the file from storage and remove from space used for

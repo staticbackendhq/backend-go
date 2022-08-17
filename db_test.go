@@ -100,3 +100,48 @@ type Voter struct {
 	ProductID string `json:"productId"`
 	UserID    string `json:"userId"`
 }
+
+func TestUpdateBulk(t *testing.T) {
+	// we add a few docs
+	var insertedTask Task
+	if err := backend.Create(token, "tasks", Task{Name: "task"}, &insertedTask); err != nil {
+		t.Error(err)
+	}
+
+	var insertedTask2 Task
+	if err := backend.Create(token, "tasks", Task{Name: "task"}, &insertedTask2); err != nil {
+		t.Error(err)
+	}
+
+	var insertedTask3 Task
+	if err := backend.Create(token, "tasks", Task{Name: "not part of update"}, &insertedTask3); err != nil {
+		t.Error(err)
+	}
+
+	var filters []backend.QueryItem
+	filters = append(filters, backend.QueryItem{
+		Field: "name",
+		Op:    backend.QueryEqual,
+		Value: "task",
+	})
+
+	update := Task{Name: "changed via update", Done: true}
+
+	if n, err := backend.UpdateBulk(token, "tasks", filters, update); err != nil {
+		t.Fatal(err)
+	} else if n != 2 {
+		t.Errorf("expected updated doc count to be 2 got %d", n)
+	}
+
+	checks := []Task{insertedTask, insertedTask2}
+	for _, task := range checks {
+		var check Task
+		if err := backend.GetByID(token, "tasks", task.ID, &check); err != nil {
+			t.Fatal(err)
+		} else if check.Name != update.Name {
+			t.Errorf("expected")
+		} else if !check.Done {
+			t.Error("expected updated task to be done=true")
+		}
+	}
+}

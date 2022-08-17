@@ -110,14 +110,7 @@ func Find(token, repo string, filters []QueryItem, v interface{}, params *ListPa
 		}
 	}
 
-	var body [][]interface{}
-	for _, f := range filters {
-		body = append(body, []interface{}{
-			f.Field,
-			f.Op,
-			f.Value,
-		})
-	}
+	body := toFilterSlice(filters)
 
 	u := fmt.Sprintf("/query/%s?%s", repo, qs.Encode())
 	err = Post(token, u, body, &meta)
@@ -131,6 +124,19 @@ func Find(token, repo string, filters []QueryItem, v interface{}, params *ListPa
 // Update updates a document. Can be just a subset of the fields.
 func Update(token, repo, id string, body interface{}, v interface{}) error {
 	return Put(token, fmt.Sprintf("/db/%s/%s", repo, id), body, v)
+}
+
+// UpdateBulk updates multiple documents based on filter clauses
+func UpdateBulk(token, repo string, filters []QueryItem, body interface{}) (n int, err error) {
+	var data struct {
+		Update  interface{}     `json:"update"`
+		Clauses [][]interface{} `json:"clauses"`
+	}
+	data.Update = body
+	data.Clauses = toFilterSlice(filters)
+
+	err = Put(token, fmt.Sprintf("/db/%s?bulk=1", repo), data, &n)
+	return
 }
 
 // Delete permanently delets a document
@@ -233,4 +239,16 @@ func SudoAddIndex(token, repo, field string) error {
 
 	url := fmt.Sprintf("/db/index?col=%s&field=%s", repo, field)
 	return Post(token, url, nil, &status)
+}
+
+func toFilterSlice(filters []QueryItem) [][]interface{} {
+	var body [][]interface{}
+	for _, f := range filters {
+		body = append(body, []interface{}{
+			f.Field,
+			f.Op,
+			f.Value,
+		})
+	}
+	return body
 }
