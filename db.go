@@ -252,3 +252,16 @@ func toFilterSlice(filters []QueryItem) [][]interface{} {
 	}
 	return body
 }
+
+// Count returns the number of document in a repo matching the optional
+// filters, which are same query filter as Query.
+func Count(token, repo string, filters []QueryItem) (n int64, err error) {
+	data := new(struct {
+		Count int64 `json:"count"`
+	})
+
+	payload := toFilterSlice(filters)
+	err = Post(token, fmt.Sprintf("/db/count/%s", repo), payload, &data)
+	n = data.Count
+	return
+}

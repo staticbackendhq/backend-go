@@ -145,3 +145,32 @@ func TestUpdateBulk(t *testing.T) {
 		}
 	}
 }
+
+func TestCount(t *testing.T) {
+	var tasks []Task
+	r, err := backend.List(token, "tasks", &tasks, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	n, err := backend.Count(token, "tasks", nil)
+	if err != nil {
+		t.Fatal(err)
+	} else if i := int64(r.Total); n != i {
+		t.Errorf("expected count to return %d got %d", i, n)
+	}
+
+	var insertedTask Task
+	if err := backend.Create(token, "tasks", Task{Name: "countme"}, &insertedTask); err != nil {
+		t.Error(err)
+	}
+
+	var filters []backend.QueryItem
+	filters = append(filters, backend.QueryItem{Field: "name", Op: "=", Value: "countme"})
+	n, err = backend.Count(token, "tasks", filters)
+	if err != nil {
+		t.Fatal(err)
+	} else if n != 1 {
+		t.Errorf("counting for 'countme' should return 1, got %d", n)
+	}
+}
