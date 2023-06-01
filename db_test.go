@@ -174,3 +174,29 @@ func TestCount(t *testing.T) {
 		t.Errorf("counting for 'countme' should return 1, got %d", n)
 	}
 }
+
+func TestDeleteBulk(t *testing.T) {
+	var insertedTask Task
+	if err := backend.Create(token, "tasks", Task{Name: "to-del", Done: true}, &insertedTask); err != nil {
+		t.Error(err)
+	}
+
+	var insertedTask2 Task
+	if err := backend.Create(token, "tasks", Task{Name: "to-del2", Done: true}, &insertedTask2); err != nil {
+		t.Error(err)
+	}
+
+	filters := []backend.QueryItem{
+		{Field: "done", Op: "=", Value: true},
+	}
+	if err := backend.DeleteBulk(token, "tasks", filters); err != nil {
+		t.Fatal(err)
+	}
+
+	var exists Task
+	if err := backend.GetByID(token, "tasks", insertedTask.ID, &exists); err == nil {
+		t.Errorf("expected err to be document not found")
+	} else if exists.ID == insertedTask.ID {
+		t.Error("expected all done = true tasks to be deleted")
+	}
+}

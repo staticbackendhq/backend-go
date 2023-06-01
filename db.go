@@ -1,6 +1,8 @@
 package backend
 
 import (
+	"encoding/base64"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"net/url"
@@ -144,6 +146,20 @@ func Delete(token, repo, id string) error {
 	return Del(token, fmt.Sprintf("/db/%s/%s", repo, id))
 }
 
+// DeleteBulk permanently deletes multiple documents matching filters
+func DeleteBulk(token, repo string, filters []QueryItem) error {
+	data := toFilterSlice(filters)
+
+	b, err := json.Marshal(data)
+	if err != nil {
+		return err
+	}
+
+	x := base64.StdEncoding.EncodeToString(b)
+	uri := fmt.Sprintf("/db/%s?bulk=1&x=%s", repo, x)
+	return Del(token, uri)
+}
+
 // SudoCreate adds a new document to a repository and returns the created document.
 func SudoCreate(token, repo string, body interface{}, v interface{}) error {
 	return Post(token, fmt.Sprintf("/sudo/%s", repo), body, v)
@@ -264,4 +280,16 @@ func Count(token, repo string, filters []QueryItem) (n int64, err error) {
 	err = Post(token, fmt.Sprintf("/db/count/%s", repo), payload, &data)
 	n = data.Count
 	return
+}
+
+// Search returns the matching document of "repo" based on keywords
+func Search(token, repo, keywords string, v interface{}) error {
+	data := new(struct {
+		Col      string `json:"col"`
+		Keywords string `json:"keywords"`
+	})
+	data.Col = repo
+	data.Keywords = keywords
+
+	return Post(token, "/search", data, v)
 }
