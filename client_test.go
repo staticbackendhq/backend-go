@@ -12,7 +12,7 @@ import (
 var token string
 
 func init() {
-	backend.PublicKey = "dev-memory-pk"
+	backend.PublicKey = "dev_memory_pk"
 
 	// this user is created by default in dev mod as an admin in the CLI
 	t, err := backend.Login("admin@dev.com", "devpw1234")

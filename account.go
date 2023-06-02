@@ -1,6 +1,7 @@
 package backend
 
 import (
+	"errors"
 	"fmt"
 	"net/url"
 	"strings"
@@ -91,6 +92,29 @@ func ResetPassword(email, code, password string) error {
 	return nil
 }
 
+// AddUser adds a user into the same account as token
+func AddUser(token, email, password string) error {
+	body := AccountParams{
+		Email:    email,
+		Password: password,
+	}
+	var ok bool
+	if err := Post(token, "/account/users", body, &ok); err != nil {
+		return err
+	} else if !ok {
+		return errors.New("could not add this user")
+	}
+
+	return nil
+}
+
+// RemoveUser removes a user from same account as token.
+// Token must have a higher level of permission (role) than deleted user
+func RemoveUser(token, userID string) error {
+	uri := fmt.Sprintf("/account/users/%s", userID)
+	return Del(token, uri)
+}
+
 // SudoGetToken returns a token from an AccountID
 // This is useful when performing creation that documents needs
 // to be attached to a specific account id and therefor the SudoCreate
@@ -106,7 +130,7 @@ func SudoGetToken(token, accountID string) (string, error) {
 // CurrentUser used to access current user's important information
 type CurrentUser struct {
 	AccountID string `json:"accountId"`
-	UserID    string `json:"userId"`
+	UserID    string `json:"id"`
 	Email     string `json:"email"`
 	Role      int    `json:"role"`
 }
@@ -116,4 +140,14 @@ type CurrentUser struct {
 func Me(token string) (me CurrentUser, err error) {
 	err = Get(token, "/me", &me)
 	return
+}
+
+// Users returns all users for the account linked with this token
+func Users(token string) ([]CurrentUser, error) {
+	var users []CurrentUser
+	if err := Get(token, "/account/users", &users); err != nil {
+		return nil, err
+	}
+
+	return users, nil
 }
