@@ -71,3 +71,24 @@ func QueueWork(token, key, value string) error {
 	var ok bool
 	return Post(token, "/sudo/cache", data, &ok)
 }
+
+// Publish sends a message to a channel (topic) where usually a server-side
+// function will process the message.
+func Publish(token, channel, typ string, data interface{}) error {
+	b, err := json.Marshal(data)
+	if err != nil {
+		return err
+	}
+
+	payload := new(struct {
+		Channel string `json:"channel"`
+		Type    string `json:"type"`
+		Data    string `json:"data"`
+	})
+	payload.Channel = channel
+	payload.Type = typ
+	payload.Data = string(b)
+
+	var status bool
+	return Post(token, "/publish", payload, &status)
+}
