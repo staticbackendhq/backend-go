@@ -226,6 +226,25 @@ func SudoFind(token, repo string, filters []QueryItem, v interface{}, params *Li
 	return
 }
 
+// SudoFindOne returns one document if it's found with a root token
+func SudoFindOne(token, repo string, filters []QueryItem, v interface{}) error {
+	meta, err := SudoFind(token, repo, filters, v, nil)
+	if err != nil {
+		return err
+	} else if meta.Total == 0 {
+		return ErrNoDocument
+	} else if meta.Total > 1 {
+		return ErrMultipleDocument
+	}
+
+	return nil
+}
+
+// Delete permanently delete a document via a root token
+func SudoDelete(token, repo, id string) error {
+	return Del(token, fmt.Sprintf("/sudo/%s/%s", repo, id))
+}
+
 // SudoListRepositories lists all database repositories if a "root token" is provided.
 func SudoListRepositories(token string) ([]string, error) {
 	var names []string
