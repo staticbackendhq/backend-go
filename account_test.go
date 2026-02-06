@@ -20,7 +20,7 @@ func TestRegisterAndLogin(t *testing.T) {
 		t.Error(err)
 	}
 
-	if err := backend.AddUser(authToken, "user2@ok.com", "passwd1234"); err != nil {
+	if _, err := backend.AddUser(authToken, "user2@ok.com", "passwd1234"); err != nil {
 		t.Fatal(err)
 	}
 

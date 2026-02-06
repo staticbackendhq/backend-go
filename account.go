@@ -1,7 +1,6 @@
 package backend
 
 import (
-	"errors"
 	"fmt"
 	"net/url"
 	"strings"
@@ -93,19 +92,14 @@ func ResetPassword(email, code, password string) error {
 }
 
 // AddUser adds a user into the same account as token
-func AddUser(token, email, password string) error {
+func AddUser(token, email, password string) (CurrentUser, error) {
 	body := AccountParams{
 		Email:    email,
 		Password: password,
 	}
-	var ok bool
-	if err := Post(token, "/account/users", body, &ok); err != nil {
-		return err
-	} else if !ok {
-		return errors.New("could not add this user")
-	}
-
-	return nil
+	var u CurrentUser
+	err := Post(token, "/account/users", body, &u)
+	return u, err
 }
 
 // RemoveUser removes a user from same account as token.

@@ -25,7 +25,7 @@ func init() {
 	if err := cleanUp(); err != nil {
 		// TODO: this could be better
 		// if the tasks collection did not existed, skip
-		if strings.Index(err.Error(), "collection not found") == -1 {
+		if strings.Contains(err.Error(), "collection not found") {
 			log.Fatal(err)
 		}
 	}

@@ -200,3 +200,34 @@ func TestDeleteBulk(t *testing.T) {
 		t.Error("expected all done = true tasks to be deleted")
 	}
 }
+
+func TestGetByIDs(t *testing.T) {
+	var task1 Task
+	if err := backend.Create(token, "tasks", Task{Name: "id-1", Done: true}, &task1); err != nil {
+		t.Error(err)
+	}
+
+	var task2 Task
+	if err := backend.Create(token, "tasks", Task{Name: "id-2", Done: false}, &task2); err != nil {
+		t.Error(err)
+	}
+
+	var task3 Task
+	if err := backend.Create(token, "tasks", Task{Name: "id-3", Done: true}, &task3); err != nil {
+		t.Error(err)
+	}
+
+	ids := []string{task1.ID, task3.ID}
+
+	var matching []Task
+	if err := backend.GetByIDs(token, "tasks", ids, &matching); err != nil {
+		t.Fatal(err)
+	} else if len(matching) != 2 {
+		t.Errorf("expected two matching docs got %d", len(matching))
+	} else if matching[0].ID != task1.ID {
+		t.Errorf("expected matching 0's id to be %s got %s", task1.ID, matching[0].ID)
+	} else if matching[1].ID != task3.ID {
+		t.Errorf("expected matching 1's id to be %s got %s", task3.ID, matching[1].ID)
+	}
+
+}

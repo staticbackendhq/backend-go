@@ -60,6 +60,11 @@ func GetByID(token, repo, id string, v interface{}) error {
 	return Get(token, fmt.Sprintf("/db/%s/%s", repo, id), v)
 }
 
+// GetByIDs returns matching docs by ids. Useful to prevent n+1 query
+func GetByIDs(token, repo string, ids []string, v interface{}) error {
+	return Post(token, fmt.Sprintf("/db/%s?ids=true", repo), ids, v)
+}
+
 // QueryItem used to perform query
 type QueryItem struct {
 	Field string
@@ -185,6 +190,11 @@ func SudoList(token, repo string, v interface{}, params *ListParams) (meta ListR
 // SudoSudoGetByID returns a specific document if a "root token" is provided.
 func SudoGetByID(token, repo, id string, v interface{}) error {
 	return Get(token, fmt.Sprintf("/sudo/%s/%s", repo, id), v)
+}
+
+// SudoGetByIDs returns matching documents by ids if root token is provided
+func SudoGetByIDs(token, repo string, ids []string, v interface{}) error {
+	return post(token, fmt.Sprintf("/sudo/%s?ids=true", repo, ids), v)
 }
 
 // SudoUpdate perform an update if a "root" token is specified
