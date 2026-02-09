@@ -194,7 +194,7 @@ func SudoGetByID(token, repo, id string, v interface{}) error {
 
 // SudoGetByIDs returns matching documents by ids if root token is provided
 func SudoGetByIDs(token, repo string, ids []string, v interface{}) error {
-	return post(token, fmt.Sprintf("/sudo/%s?ids=true", repo, ids), v)
+	return Post(token, fmt.Sprintf("/sudo/%s?ids=true", repo), ids, v)
 }
 
 // SudoUpdate perform an update if a "root" token is specified
