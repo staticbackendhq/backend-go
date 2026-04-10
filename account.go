@@ -8,8 +8,9 @@ import (
 
 // AccountParams represents a new StaticBackend account
 type AccountParams struct {
-	Email    string `json:"email"`
-	Password string `json:"password"`
+	Email     string `json:"email"`
+	Password  string `json:"password"`
+	AccountID string `json:"accountId,omitempty"`
 }
 
 // Register creates a new user and returns their session token.
@@ -27,9 +28,16 @@ func Register(email, password string) (string, error) {
 
 // Login authenticate a user and returns their session token
 func Login(email, password string) (string, error) {
+	return LoginForAccount(email, password, "")
+}
+
+// LoginForAccount authenticate a user ensuring they're part of
+// an account and returns their session token
+func LoginForAccount(email, password, accountID string) (string, error) {
 	body := AccountParams{
-		Email:    email,
-		Password: password,
+		Email:     email,
+		Password:  password,
+		AccountID: accountID,
 	}
 	var token string
 	if err := Post("", "/login", body, &token); err != nil {
@@ -144,4 +152,53 @@ func Users(token string) ([]CurrentUser, error) {
 	}
 
 	return users, nil
+}
+
+// AccountUser represents a cross-account membership for a user.
+type AccountUser struct {
+	ID        string `json:"id"`
+	UserID    string `json:"userId"`
+	AccountID string `json:"accountId"`
+	Email     string `json:"email"`
+	Role      int    `json:"role"`
+	Token     string `json:"token"`
+}
+
+// UserAccountEntry represents one account (home or associated) returned by SudoGetUserAccounts.
+type UserAccountEntry struct {
+	AccountID string `json:"accountId"`
+	Role      int    `json:"role"`
+	Home      bool   `json:"home"`
+	Token     string `json:"token,omitempty"`
+}
+
+// ListAssociations returns all cross-account memberships for the current user.
+func ListAssociations(token string) ([]AccountUser, error) {
+	var associations []AccountUser
+	if err := Get(token, "/account/associations", &associations); err != nil {
+		return nil, err
+	}
+	return associations, nil
+}
+
+// PromoteUser promotes the current user to have their own home account,
+// preserving their existing membership as a cross-account association.
+// Returns the new session token for the promoted account.
+func PromoteUser(token string) (string, error) {
+	var newToken string
+	if err := Post(token, "/account/promote", nil, &newToken); err != nil {
+		return "", err
+	}
+	return newToken, nil
+}
+
+// SudoGetUserAccounts returns all account IDs (home + associations) for a given email.
+// Requires a root token.
+func SudoGetUserAccounts(token, email string) ([]UserAccountEntry, error) {
+	path := fmt.Sprintf("/account/user-accounts?email=%s", url.QueryEscape(email))
+	var entries []UserAccountEntry
+	if err := Get(token, path, &entries); err != nil {
+		return nil, err
+	}
+	return entries, nil
 }
