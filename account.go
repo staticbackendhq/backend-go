@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/url"
 	"strings"
+	"time"
 )
 
 // AccountParams represents a new StaticBackend account
@@ -137,6 +138,16 @@ type CurrentUser struct {
 	Role      int    `json:"role"`
 }
 
+// User represents a user record returned by root-token account endpoints.
+type User struct {
+	ID        string    `json:"id"`
+	AccountID string    `json:"accountId"`
+	Token     string    `json:"token"`
+	Email     string    `json:"email"`
+	Role      int       `json:"role"`
+	Created   time.Time `json:"created"`
+}
+
 // Me returns the current user matching this session token
 // This is the only way to get the user's role, account/user ids and email.
 func Me(token string) (me CurrentUser, err error) {
@@ -201,4 +212,26 @@ func SudoGetUserAccounts(token, email string) ([]UserAccountEntry, error) {
 		return nil, err
 	}
 	return entries, nil
+}
+
+// SudoGetAuthTokenByUserID returns an authentication token for a specific user in an account.
+// Requires a root token.
+func SudoGetAuthTokenByUserID(token, accountID, userID string) (string, error) {
+	path := fmt.Sprintf("/sudogetauthtokenbyuserid/%s/%s", accountID, userID)
+	var authToken string
+	if err := Get(token, path, &authToken); err != nil {
+		return "", err
+	}
+	return authToken, nil
+}
+
+// SudoGetUserByID returns a specific user in an account.
+// Requires a root token.
+func SudoGetUserByID(token, accountID, userID string) (User, error) {
+	path := fmt.Sprintf("/sudogetuserbyid/%s/%s", accountID, userID)
+	var user User
+	if err := Get(token, path, &user); err != nil {
+		return User{}, err
+	}
+	return user, nil
 }

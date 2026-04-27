@@ -31,7 +31,6 @@ func NewSystemAccountBypassStripe(email, bypassFlag string) (data NewSystemAccou
 	q.Add("x", bypassFlag)
 
 	u := fmt.Sprintf("/account/init?%s", q.Encode())
-	fmt.Println("DEBUG", u)
 	err = Get("", u, &data)
 	return
 }
