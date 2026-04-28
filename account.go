@@ -67,6 +67,28 @@ func SetPassword(token, email, oldPassword, newPassword string) error {
 	return nil
 }
 
+// SetRole changes the role of a user in an account.
+func SetRole(token, accountID, email string, role int) error {
+	var body = new(struct {
+		AccountID string `json:"accountId"`
+		Email     string `json:"email"`
+		Role      int    `json:"role"`
+	})
+
+	body.AccountID = accountID
+	body.Email = email
+	body.Role = role
+
+	var status bool
+	if err := Post(token, "/setrole", body, &status); err != nil {
+		return err
+	} else if !status {
+		return fmt.Errorf("unable to set role")
+	}
+
+	return nil
+}
+
 // GetPasswordResetCode returns a unique code for a user to change their password
 func GetPasswordResetCode(token, email string) (string, error) {
 	qs := url.Values{}

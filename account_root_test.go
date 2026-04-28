@@ -1,7 +1,9 @@
 package backend_test
 
 import (
+	"fmt"
 	"testing"
+	"time"
 
 	"github.com/staticbackendhq/backend-go"
 )
@@ -42,6 +44,47 @@ func TestSudoGetUserByID(t *testing.T) {
 	if user.Email != me.Email {
 		t.Fatalf("expected email %s got %s", me.Email, user.Email)
 	}
+}
+
+func TestSetRole(t *testing.T) {
+	me, err := currentAdminUser()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	email := fmt.Sprintf("setrole_%d@test.com", time.Now().UnixNano())
+	user, err := backend.AddUser(token, email, "passwd1234")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	t.Cleanup(func() {
+		if err := backend.RemoveUser(token, user.UserID); err != nil {
+			t.Fatalf("cleanup remove user: %v", err)
+		}
+	})
+
+	const newRole = 25
+	if err := backend.SetRole(token, me.AccountID, email, newRole); err != nil {
+		t.Fatal(err)
+	}
+
+	users, err := backend.Users(token)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	for _, got := range users {
+		if got.UserID != user.UserID {
+			continue
+		}
+		if got.Role != newRole {
+			t.Fatalf("expected role %d got %d", newRole, got.Role)
+		}
+		return
+	}
+
+	t.Fatalf("expected user %s to be present in users list", user.UserID)
 }
 
 func currentAdminUser() (backend.CurrentUser, error) {
