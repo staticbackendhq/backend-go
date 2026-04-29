@@ -6,6 +6,9 @@ import (
 	"io"
 	"mime/multipart"
 	"net/http"
+	"net/url"
+	"strconv"
+	"time"
 )
 
 // StoreFileResult incluses the file id and url. The ID is required
@@ -13,6 +16,38 @@ import (
 type StoreFileResult struct {
 	ID  string `json:"id"`
 	URL string `json:"url"`
+}
+
+// File describes a stored file entry returned by the storage API.
+type File struct {
+	ID        string    `json:"id"`
+	AccountID string    `json:"accountId"`
+	Key       string    `json:"key"`
+	URL       string    `json:"url"`
+	Size      int64     `json:"size"`
+	Uploaded  time.Time `json:"uploaded"`
+}
+
+// FileUsage describes the current account storage usage.
+type FileUsage struct {
+	Bytes int64   `json:"bytes"`
+	GB    float64 `json:"gb"`
+}
+
+// FileListResult contains paged file results from the storage API.
+type FileListResult struct {
+	Page    int64  `json:"page"`
+	Size    int64  `json:"size"`
+	Total   int64  `json:"total"`
+	Results []File `json:"results"`
+}
+
+// ListFilesParams configures paging and sorting for file listing.
+//
+// The current API supports page selection and an optional "size" sort.
+type ListFilesParams struct {
+	Page   int
+	SortBy string
 }
 
 // StoreFile uploads a new file and returns its public URL using SB CDN.
@@ -55,6 +90,33 @@ func DownloadFile(token, fileURL string) (buf []byte, err error) {
 	defer resp.Body.Close()
 
 	buf, err = io.ReadAll(resp.Body)
+	return
+}
+
+// StorageUsage returns the storage usage for the authenticated account.
+func StorageUsage(token string) (usage FileUsage, err error) {
+	err = Get(token, "/storage/usage", &usage)
+	return
+}
+
+// ListFiles lists files for the authenticated account.
+func ListFiles(token string, params *ListFilesParams) (result FileListResult, err error) {
+	qs := url.Values{}
+	if params != nil {
+		if params.Page > 0 {
+			qs.Add("page", strconv.Itoa(params.Page))
+		}
+		if params.SortBy != "" {
+			qs.Add("sort", params.SortBy)
+		}
+	}
+
+	u := "/storage/files"
+	if enc := qs.Encode(); enc != "" {
+		u = fmt.Sprintf("%s?%s", u, enc)
+	}
+
+	err = Get(token, u, &result)
 	return
 }
 

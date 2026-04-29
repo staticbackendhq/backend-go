@@ -12,6 +12,7 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
+	"strings"
 	"time"
 )
 
@@ -78,7 +79,7 @@ func request(token, method, url, ct string, body io.Reader, v interface{}) error
 		return fmt.Errorf("error returned by the backend: %s", string(b))
 	}
 
-	if res.Header.Get("Content-Type") == "application/json" && v != nil && res.Body != nil {
+	if strings.HasPrefix(res.Header.Get("Content-Type"), "application/json") && v != nil && res.Body != nil {
 		if err := json.NewDecoder(res.Body).Decode(v); err != nil {
 			return fmt.Errorf("unable to decode the response body: %v", err)
 		}
