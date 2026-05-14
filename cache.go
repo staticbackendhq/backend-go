@@ -90,5 +90,5 @@ func Publish(token, channel, typ string, data interface{}) error {
 	payload.Data = string(b)
 
 	var status bool
-	return Post(token, "/publish", payload, &status)
+	return Post(token, "/publish-message", payload, &status)
 }

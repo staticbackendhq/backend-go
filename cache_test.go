@@ -12,7 +12,7 @@ func TestPublishMessage(t *testing.T) {
 		Done: true,
 	}
 
-	if err := backend.Publish(token, "test-channel", "test-type", fakeTask); err != nil {
+	if err := backend.Publish(rootToken, "test-channel", "test-type", fakeTask); err != nil {
 		t.Fatal(err)
 	}
 }

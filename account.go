@@ -48,6 +48,19 @@ func LoginForAccount(email, password, accountID string) (string, error) {
 	return token, nil
 }
 
+// EmailExists checks whether an email address is already registered.
+func EmailExists(email string) (bool, error) {
+	qs := url.Values{}
+	qs.Add("e", email)
+
+	var exists bool
+	path := fmt.Sprintf("/email?%s", qs.Encode())
+	if err := Get("", path, &exists); err != nil {
+		return false, err
+	}
+	return exists, nil
+}
+
 // SetPassword changes the password of a user
 func SetPassword(token, email, oldPassword, newPassword string) error {
 	var body = new(struct {
@@ -175,6 +188,22 @@ type User struct {
 func Me(token string) (me CurrentUser, err error) {
 	err = Get(token, "/me", &me)
 	return
+}
+
+// ChangeEmail changes the authenticated user's email address.
+func ChangeEmail(token, email string) error {
+	body := new(struct {
+		Email string `json:"email"`
+	})
+	body.Email = email
+
+	var status bool
+	if err := Post(token, "/me/email", body, &status); err != nil {
+		return err
+	} else if !status {
+		return fmt.Errorf("unable to change email")
+	}
+	return nil
 }
 
 // Users returns all users for the account linked with this token
