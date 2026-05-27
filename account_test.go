@@ -32,7 +32,7 @@ func TestRegisterAndLogin(t *testing.T) {
 	var userID string
 	for _, user := range users {
 		if user.Email == "user2@ok.com" {
-			userID = user.UserID
+			userID = user.ID
 			break
 		}
 	}
@@ -49,7 +49,7 @@ func TestRegisterAndLogin(t *testing.T) {
 
 	found := false
 	for _, user := range users {
-		if user.UserID == userID {
+		if user.ID == userID {
 			found = true
 			break
 		}
@@ -90,7 +90,7 @@ func TestChangeEmail(t *testing.T) {
 	}
 
 	t.Cleanup(func() {
-		if err := backend.RemoveUser(token, user.UserID); err != nil {
+		if err := backend.RemoveUser(token, user.ID); err != nil {
 			t.Fatalf("cleanup remove user: %v", err)
 		}
 	})

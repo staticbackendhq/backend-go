@@ -59,7 +59,7 @@ func TestSetRole(t *testing.T) {
 	}
 
 	t.Cleanup(func() {
-		if err := backend.RemoveUser(token, user.UserID); err != nil {
+		if err := backend.RemoveUser(token, user.ID); err != nil {
 			t.Fatalf("cleanup remove user: %v", err)
 		}
 	})
@@ -75,7 +75,7 @@ func TestSetRole(t *testing.T) {
 	}
 
 	for _, got := range users {
-		if got.UserID != user.UserID {
+		if got.ID != user.ID {
 			continue
 		}
 		if got.Role != newRole {
@@ -84,7 +84,7 @@ func TestSetRole(t *testing.T) {
 		return
 	}
 
-	t.Fatalf("expected user %s to be present in users list", user.UserID)
+	t.Fatalf("expected user %s to be present in users list", user.ID)
 }
 
 func currentAdminUser() (backend.CurrentUser, error) {
@@ -95,7 +95,12 @@ func currentAdminUser() (backend.CurrentUser, error) {
 
 	for _, user := range users {
 		if user.Email == "admin@dev.com" {
-			return user, nil
+			return backend.CurrentUser{
+				AccountID: user.AccountID,
+				UserID:    user.ID,
+				Email:     user.Email,
+				Role:      user.Role,
+			}, nil
 		}
 	}
 

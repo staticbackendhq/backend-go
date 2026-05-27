@@ -136,12 +136,12 @@ func ResetPassword(email, code, password string) error {
 }
 
 // AddUser adds a user into the same account as token
-func AddUser(token, email, password string) (CurrentUser, error) {
+func AddUser(token, email, password string) (User, error) {
 	body := AccountParams{
 		Email:    email,
 		Password: password,
 	}
-	var u CurrentUser
+	var u User
 	err := Post(token, "/account/users", body, &u)
 	return u, err
 }
@@ -207,8 +207,8 @@ func ChangeEmail(token, email string) error {
 }
 
 // Users returns all users for the account linked with this token
-func Users(token string) ([]CurrentUser, error) {
-	var users []CurrentUser
+func Users(token string) ([]User, error) {
+	var users []User
 	if err := Get(token, "/account/users", &users); err != nil {
 		return nil, err
 	}
