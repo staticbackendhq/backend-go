@@ -168,7 +168,7 @@ func SudoGetToken(token, accountID string) (string, error) {
 // CurrentUser used to access current user's important information
 type CurrentUser struct {
 	AccountID string `json:"accountId"`
-	UserID    string `json:"id"`
+	UserID    string `json:"userId"`
 	Email     string `json:"email"`
 	Role      int    `json:"role"`
 }
