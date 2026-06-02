@@ -8,6 +8,7 @@ type Function struct {
 	FunctionName string       `json:"name"`
 	TriggerTopic string       `json:"trigger"`
 	Code         string       `json:"code"`
+	Secrets      *string      `json:"secrets,omitempty"`
 	Version      int          `json:"version"`
 	LastUpdated  time.Time    `json:"lastUpdated"`
 	LastRun      time.Time    `json:"lastRun"`
