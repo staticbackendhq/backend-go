@@ -153,6 +153,12 @@ func RemoveUser(token, userID string) error {
 	return Del(token, uri)
 }
 
+// DeleteAccount permanently deletes the authenticated account and all related
+// files and data.
+func DeleteAccount(token string) error {
+	return Del(token, "/account")
+}
+
 // SudoGetToken returns a token from an AccountID
 // This is useful when performing creation that documents needs
 // to be attached to a specific account id and therefor the SudoCreate
