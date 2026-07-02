@@ -212,14 +212,25 @@ func ChangeEmail(token, email string) error {
 	return nil
 }
 
-// Users returns all users for the account linked with this token
-func Users(token string) ([]User, error) {
+// Users returns all users for the account linked with this token.
+// Pass a role to filter the returned users by that role.
+func Users(token string, roles ...int) ([]User, error) {
 	var users []User
-	if err := Get(token, "/account/users", &users); err != nil {
+	if err := Get(token, usersPath(roles...), &users); err != nil {
 		return nil, err
 	}
 
 	return users, nil
+}
+
+func usersPath(roles ...int) string {
+	if len(roles) == 0 {
+		return "/account/users"
+	}
+
+	qs := url.Values{}
+	qs.Add("role", fmt.Sprint(roles[0]))
+	return fmt.Sprintf("/account/users?%s", qs.Encode())
 }
 
 // AccountUser represents a cross-account membership for a user.
